@@ -116,6 +116,12 @@ def main():
                 sum += v[j] / len(outlinks[j])
         v[i] = sum
 
+    ### printing block
+    print("PageRank\tIds")
+    for i,v in sorted(v.items(), key=lambda x: x[1], reverse=True):
+        print(v, end='\t')
+        print(i)
+    ###
 
 
 if __name__ == "__main__":
