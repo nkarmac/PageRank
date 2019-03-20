@@ -2,17 +2,23 @@ import queue
 
 def main():
     
-    n = 0
-    e = 0
+    n = 0       # nodes/pages
+    e = 0       # edges/links
+    B = 0.85    # taxation
+    T = 100      # iterations
 
     G = {}
     inlinks = {}
     outlinks = {}
 
     filename = input("Please enter a filename (eg: \"web-Google_10k.txt\")\n")
+
+    print("opening file...", flush=True)
+
     f = open(filename, 'r')
     linenum = 0
 
+    print("building graph...", flush=True)
     for line in f:
         
         # process metadata
@@ -49,10 +55,12 @@ def main():
             outlinks[nums[0]] = []
         outlinks[nums[0]].append(nums[1])
     
+    print("finding dead ends...", flush=True)
+
     # Now find all dead ends
     # can iterate through inlinks or outlinks
 
-    D = {}
+    D = {}  # Degree List
     Q = queue.Queue(maxsize=0)
 
     for node in G:
@@ -70,25 +78,43 @@ def main():
         if i not in L:
             L.append(i)
 
-            ## printing block
-            print(i)
-            ##
-
             if i in inlinks: 
                 for j in inlinks[i]:
                     D[j] = D[j] - 1
                     if D[j] == 0:
                         Q.put(j)
+            
 
-    print()
-    print("Num dead ends are:")
-    print(len(L))
+    print("removing dead ends...", flush=True)
 
+    for page in L:
+        del G[page]    # delete dead end from graph
+        n -= 1
 
+    print("computing pagerank...", flush=True)
 
-        
+    # pagerank alg
+    v = {}
+    for i in G:
+        v[i] = 1/n
 
-        
+    for iteration in range(10):
+
+        print("iteration %i..." % (iteration+1), flush=True)
+
+        for i in G:
+            sum = 0
+            if i in inlinks:
+                for j in inlinks[i]:
+                    sum += v[j] / D[j]
+            v[i] = (B*sum) + ((1-B)/n)
+    
+    for i in reversed(L):
+        sum = 0
+        if i in inlinks:
+            for j in inlinks[i]:
+                sum += v[j] / len(outlinks[j])
+        v[i] = sum
 
 
 
